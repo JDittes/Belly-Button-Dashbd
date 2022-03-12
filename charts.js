@@ -77,7 +77,7 @@ function buildCharts(sample) {
     var reversed = sorted.reverse();
 
     var sliced = reversed.slice(0,9)
-    var yticks = sliced
+    var descendingBacteria = sliced
 
     // 8. Create the trace for the bar chart. 
     var barData = {
@@ -95,4 +95,4 @@ function buildCharts(sample) {
       };
 
     // 10. Use Plotly to plot the data with the layout. 
-    Plotly.newPlot("plot", barData, barLayout)})}
+    Plotly.newPlot("bar", [barData], barLayout)})}
