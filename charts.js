@@ -15,8 +15,9 @@ function init() {
 
     // Use the first sample from the list to build the initial plots
     var firstSample = sampleNames[0];
-    buildCharts(firstSample);
     buildMetadata(firstSample);
+    buildBar(firstSample);
+    bubbleChart(firstSample);
   });
 }
 
@@ -26,7 +27,9 @@ init();
 function optionChanged(newSample) {
   // Fetch new data each time a new sample is selected
   buildMetadata(newSample);
-  buildCharts(newSample);
+  buildBar(newSample);
+  bubbleChart(newSample);
+
   
 }
 
@@ -54,13 +57,13 @@ function buildMetadata(sample) {
 }
 
 // 1. Create the buildCharts function.
-function buildCharts(sample) {
+function buildBar(sample) {
   // 2. Use d3.json to load and retrieve the samples.json file 
   d3.json("samples.json").then((data) => {
     // 3. Create a variable that holds the samples array. 
-    var metadata = data.metadata;
+    var metadata = data.samples;
     // 4. Create a variable that filters the samples for the object with the desired sample number.
-    var resultArray = metadata.filter(sampleObj => sampleObj.id == data);
+    var resultArray = metadata.filter(sampleObj => sampleObj.id == sample);
     //  5. Create a variable that holds the first sample in the array.
     var result = resultArray[0];
 
@@ -72,27 +75,62 @@ function buildCharts(sample) {
     // 7. Create the yticks for the bar chart.
     // Hint: Get the the top 10 otu_ids and map them in descending order  
     //  so the otu_ids with the most bacteria are last. 
-    var sorted = result.sort((a, b) => b - a);
-    
-    var reversed = sorted.reverse();
-
-    var sliced = reversed.slice(0,9)
-    var descendingBacteria = sliced
-
+    // var yticks = result.sort((a, b) => b - a).slice(0,9).map(otuIds).reverse();
+    yticks = otuIds.slice(0,10).map(otuIds => `OTU ${otuIds}`).reverse();
     // 8. Create the trace for the bar chart. 
     var barData = {
-      x: sampleValues,
-      y: otuIds,
-      text: otuLabels,
-      type: "bar"
+      x: sampleValues.slice(0,10).reverse(),
+      y: yticks,
+      //text: otuLabels,
+      type: "bar",
+      orientation: 'h'        
+
     }; 
     
     // 9. Create the layout for the bar chart. 
     var barLayout = {
       title: "Top 10 Bacteria Cultures Found",
-      xaxis: { title: 'Number'},
-      yaxis: { title: 'Bacteria Species ID'},        
+      yaxis: { title: 'Top 10 Bacteria Species'},
       };
 
     // 10. Use Plotly to plot the data with the layout. 
     Plotly.newPlot("bar", [barData], barLayout)})}
+
+    // Create the buildCharts function.
+function bubbleChart(sample) {
+  // Use d3.json to load and retrieve the samples.json file 
+  d3.json("samples.json").then((data) => {
+    var metadata = data.samples;
+    // 4. Create a variable that filters the samples for the object with the desired sample number.
+    var resultArray = metadata.filter(sampleObj => sampleObj.id == sample);
+    //  5. Create a variable that holds the first sample in the array.
+    var result = resultArray[0];
+
+    // 6. Create variables that hold the otu_ids, otu_labels, and sample_values.
+    var otuIds = result.otu_ids;
+    var otuLabels = result.otu_labels;
+    var sampleValues = result.sample_values;
+
+    // 1. Create the trace for the bubble chart.
+    var bubbleData = [{
+      x: otuIds,
+      y: sampleValues,
+      text: otuLabels,
+      mode: 'markers',
+      marker: {
+        color: otuIds,
+        colorscale: 'RdBu',
+        size: sampleValues
+      }
+    }];
+
+    // 2. Create the layout for the bubble chart.
+    var bubbleLayout = {
+      title: "Bacteria Cultures per Sample",
+      showlegend: false
+    };
+
+    // 3. Use Plotly to plot the data with the layout.
+    Plotly.newPlot("bubble", bubbleData, bubbleLayout); 
+  });
+}
