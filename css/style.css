@@ -1,0 +1,13 @@
+.jumbotron {
+    background-image: url("/css/bellybutton.jpg");
+    background-size: 100% 100%;
+    text-align: center;
+  }
+
+  article {
+    float: left;
+    padding: 20px;
+    width: 70%;
+  }
+  
+  body {background-color: floralwhite;}
